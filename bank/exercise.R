@@ -238,7 +238,15 @@ title("Prediction on term deposit subscription")
 legend("bottomright", c("knn", "boosted decision tree", "random forest"), lwd = 1,
        col=c("red", "blue", "green"))
 
-
+#try balance the data set
+bank.train.rf.bal <- ubSMOTE(bank.train.c50[,-17],factor(bank.train.c50$y,labels=c(0,1)),perc.over = 800, perc.under=100)
+bank.train.rf.bal <- cbind(bank.train.rf.bal$X, bank.train.rf.bal$Y)
+names(bank.train.rf.bal)[17] <- "y"
+bank.rf.bal.model <- randomForest(y~.,data=bank.train.rf.bal,importance=T)
+bank.rf.bal.pred <- predict(bank.rf.bal.model,bank.test.c50, type="prob")
+pred.bal.rf <- prediction(bank.rf.bal.pred[,2],factor(bank.test.c50$y, labels=c(0,1)))
+perf.bal.rf <- performance(pred.bal.rf, "tpr", "fpr")
+plot(perf.bal.rf, add=T, col="purple")
 
 
 
